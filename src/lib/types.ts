@@ -26,3 +26,15 @@ export interface Tag {
   name: string
   slug: string
 }
+
+export interface GuestbookEntry {
+  id: number
+  message: string
+  created_at: string
+  metadata: string
+}
+
+export interface GuestbookEntryView extends GuestbookEntry {
+  formattedId: string
+  identiconSvg: string
+}

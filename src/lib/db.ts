@@ -1,4 +1,4 @@
-import type { Post, PostSummary } from './types'
+import type { GuestbookEntry, Post, PostSummary } from './types'
 
 /**
  * Lightweight projection used by the index list and the posts feed.
@@ -27,4 +27,39 @@ export async function getPostBySlug(
     .prepare('SELECT * FROM posts WHERE slug = ? AND status = ?')
     .bind(slug, 'published')
     .first<Post>()
+}
+
+/**
+ * Latest guestbook entries, newest first.
+ */
+export async function getGuestbookEntries(
+  db: D1Database,
+  limit = 50,
+): Promise<GuestbookEntry[]> {
+  const { results } = await db
+    .prepare(
+      'SELECT id, message, created_at, metadata FROM guestbook ORDER BY created_at DESC LIMIT ?',
+    )
+    .bind(limit)
+    .all<GuestbookEntry>()
+  return results
+}
+
+/**
+ * Insert a validated message and return the created row.
+ */
+export async function createGuestbookEntry(
+  db: D1Database,
+  message: string,
+): Promise<GuestbookEntry> {
+  const row = await db
+    .prepare(
+      'INSERT INTO guestbook (message) VALUES (?) RETURNING id, message, created_at, metadata',
+    )
+    .bind(message)
+    .first<GuestbookEntry>()
+  if (!row) {
+    throw new Error('Guestbook insert returned no row')
+  }
+  return row
 }

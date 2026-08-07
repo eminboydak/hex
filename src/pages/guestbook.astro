@@ -1,0 +1,51 @@
+---
+import { env } from 'cloudflare:workers';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import GuestbookForm from '@/components/islands/GuestbookForm';
+import { getGuestbookEntries } from '@/lib/db';
+import { identityFromId } from '@/lib/identity';
+import type { GuestbookEntryView } from '@/lib/types';
+
+const entries: GuestbookEntryView[] = (
+  await getGuestbookEntries(env.DB)
+).map((e) => ({ ...e, ...identityFromId(e.id) }));
+
+// D1 returns "YYYY-MM-DD HH:MM:SS" (UTC) — normalize to ISO, then format tr-TR.
+function fmtDate(iso: string): string {
+  const d = new Date(iso.replace(' ', 'T') + 'Z');
+  return Number.isNaN(d.getTime())
+    ? iso
+    : d.toLocaleString('tr-TR', { dateStyle: 'medium', timeStyle: 'short' });
+}
+---
+<BaseLayout title="hex — ziyaretçi defteri" description="Ziyaretçi defteri">
+  <section>
+    <h1 class="font-display text-3xl text-ink">Ziyaretçi Defteri</h1>
+    <p class="mt-2 font-mono text-xs text-faint">
+      İzin bırakın — bir satır yazın.
+    </p>
+
+    <div class="mt-8">
+      <GuestbookForm client:idle />
+    </div>
+
+    <ul id="guestbook-entries" class="mt-10 space-y-5">
+      {
+        entries.map((e) => (
+          <li class="flex gap-4 border border-line bg-panel/40 p-4">
+            <div
+              class="h-10 w-10 shrink-0 [&_svg]:h-full [&_svg]:w-full"
+              set:html={e.identiconSvg}
+            />
+            <div class="min-w-0 flex-1">
+              <p class="font-mono text-xs text-faint">
+                {e.formattedId} · {fmtDate(e.created_at)}
+              </p>
+              <p class="mt-1 leading-relaxed text-ink">{e.message}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</BaseLayout>

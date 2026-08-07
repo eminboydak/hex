@@ -7,7 +7,7 @@
       "@/layouts/*": ["src/layouts/*"],
       "@/lib/*": ["src/lib/*"]
     },
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "jsxImportSource": "preact"
   },
   "include": [".astro/types.d.ts", "worker-configuration.d.ts", "**/*.ts", "**/*.astro"],

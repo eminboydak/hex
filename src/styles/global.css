@@ -19,6 +19,7 @@
   --color-mauve: var(--accent);
   --color-peach: var(--accent-alt);
   --color-sapphire: var(--accent-subtle);
+  --color-rosewater: var(--rosewater);
 }
 
 /* Catppuccin Macchiato — dark (default) */
@@ -32,6 +33,7 @@
   --accent: #c6a0f6;
   --accent-alt: #f5a97f;
   --accent-subtle: #7dc4e4;
+  --rosewater: #f4dbd4;
 }
 
 /* Catppuccin Latte — light (follows OS preference, zero JS) */
@@ -46,6 +48,7 @@
     --accent: #8839ef;
     --accent-alt: #fe640b;
     --accent-subtle: #209fb5;
+    --rosewater: #dc8a78;
   }
 }
 
