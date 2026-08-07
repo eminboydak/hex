@@ -10,11 +10,12 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "wrangler pages dev",
+    "preview": "wrangler dev --config dist/server/wrangler.json",
+    "deploy": "wrangler deploy --config dist/server/wrangler.json",
     "check": "astro check",
     "astro": "astro",
-    "db:push": "wrangler d1 execute hex --local --file=./schema.sql",
-    "db:seed": "wrangler d1 execute hex --local --file=./seed.sql",
+    "db:push": "wrangler d1 execute hex --remote --file=./schema.sql",
+    "db:seed": "wrangler d1 execute hex --remote --file=./seed.sql",
     "cf-typegen": "wrangler types"
   },
   "dependencies": {

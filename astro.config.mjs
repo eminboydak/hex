@@ -15,6 +15,8 @@ export default defineConfig({
     platformProxy: {
       enabled: true,
     },
+    // In dev, read D1/R2 from the production account instead of local miniflare stubs.
+    remoteBindings: true,
   }),
   integrations: [preact()],
   vite: {

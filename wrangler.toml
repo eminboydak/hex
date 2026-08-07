@@ -1,10 +1,14 @@
 name = "hex"
 compatibility_date = "2026-08-07"
-pages_build_output_dir = "dist"
 
-# Local dev: `pnpm run db:push` seeds a local SQLite under .wrangler/state/v3/d1.
-# Production: run `wrangler d1 create hex` and `wrangler r2 bucket create hex-media`,
-# then replace the placeholder database_id below with the id returned by `d1 create`.
+# Deploy target: Cloudflare Worker (NOT Pages). The @astrojs/cloudflare adapter
+# builds dist/ and emits dist/server/wrangler.json (Worker entry + static assets +
+# the bindings below). Deploy with `pnpm deploy`.
+#
+# Local dev: `pnpm dev` (astro dev via platformProxy, reads prod D1/R2 via
+# remoteBindings). Apply schema + seed to prod with `pnpm db:push` and `pnpm db:seed`.
+# Prerequisites: `wrangler login`, and the D1/R2 resources must exist remotely
+# (`wrangler d1 create hex`, `wrangler r2 bucket create hex-assets`).
 [[d1_databases]]
 binding = "DB"
 database_name = "hex"
