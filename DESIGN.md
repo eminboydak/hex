@@ -89,3 +89,47 @@ A personal digital workspace, workshop, and poetic journal. Combines poetic edit
 - **ID Generator:** Converts database auto-increment ID to a deterministic, 32-bit obfuscated hex string via a bijective cipher (0% collision risk).
 - **Display Format:** Standardized 10-character string (strictly lowercase `0x` prefix followed by 8 hex characters, e.g., `0x7f8a9b0c`).
 - **Geometric Identicon:** Pure SVG component generated deterministically from the 32-bit hex hash. Uses Catppuccin color tokens (`Mauve`, `Peach`, `Sapphire`, `Rosewater`) to render geometric pixel patterns locally without external network calls.
+
+## 4. ADMIN PANEL & AUTH (PHASE 3)
+
+### Authentication Model
+- **Mechanism:** Cloudflare Access JWT verification (Zero Trust).
+- **Token source:** `cf-access-jwt-assertion` request header, issued by the Cloudflare Access edge policy protecting `/admin/*`.
+- **Verification:** `jose` library decodes the JWT and verifies signature + audience (`ADMIN_AUD`) against Cloudflare's JWKS endpoint, cached in-memory across Worker invocations. Unauthenticated/invalid requests get HTTP 401.
+- **Defense in depth:** the Access edge policy is the primary gate; JWT verification in the Hono `/api/admin/*` middleware is a second layer. Both must pass.
+- **Visual approach:** Strict continuity — the admin UI reuses `DESIGN.md` tokens (Catppuccin palette, existing typography/border rhythm). Minimal, content-first control panel; no new visual motifs.
+
+### Admin UI Layout
+- `/admin` — post list (drafts included), status badges, edit/new actions. SSR `.astro`.
+- `/admin/editor` — markdown editor with live preview, image upload (drop/paste), form (title/slug/excerpt/status). `?id=` loads an existing post (SSR), otherwise new post.
+- **Editor island:** `src/components/islands/MarkdownEditor.tsx` (Preact) — the only intentional client JS in the admin area. Features: live preview via `marked`, client-side image resize → webp upload, create/update submission.
+
+## 5. MEDIA STORAGE (R2)
+
+### Bucket Layout (Hybrid: content-type × date)
+```
+<bucket-root>/
+├── blog/YYYY/MM/<ulid>.webp            # blog post media (featured + inline)
+├── gallery/YYYY/MM/<ulid>.webp         # (future) gallery images
+├── guestbook/YYYY/MM/<ulid>.<ext>      # (future) guestbook uploads/avatars
+├── assets/                             # static site assets (logos, icons, fonts)
+│   ├── logos/
+│   ├── icons/
+│   └── fonts/
+└── archive/<type>/YYYY/MM/<ulid>.<ext> # lifecycle-archived media
+```
+
+### Naming & Upload Flow
+- **Filename:** `<ulid>.<ext>` — ULID generated server-side (`Date.now()` base32 + `crypto.getRandomValues`), lexicographically time-sortable. No client-supplied filenames stored verbatim.
+- **Resize:** performed client-side in the editor island via `<canvas>` (longest edge ≤ 1600px), then `canvas.toBlob('image/webp', 0.82)`. The Worker stores bytes as-is — no server-side image processing, no paid Cloudflare Images/Resizing, no WASM in the Worker.
+- **Endpoint:** `POST /api/admin/upload?type=blog` (multipart) → `env.BUCKET.put('blog/2026/08/<ulid>.webp', ...)` → returns the public CDN URL.
+- **Public URL:** `https://cdn.eminboydak.com/blog/2026/08/<ulid>.webp` (R2 bucket served via the `cdn.eminboydak.com` custom domain).
+
+### Performance Notes
+- Prefix partitioning: each `content-type/YYYY/MM/` acts as a separate prefix, scaling request rate across partitions.
+- Folder depth ≤ 5 levels (optimal for R2/S3 listing performance).
+- CDN: long `Cache-Control` on immutable media (`<ulid>` content-addressed); short TTL on anything mutable.
+
+## 6. DOCUMENTATION STANDARDS
+- **Language:** English for all documentation artifacts.
+- **Location:** `docs/` tree (ADR, RFC/plans, changelog). See `AGENTS.md` "Documentation standards" and the `docs-generator` skill for templates and lifecycle rules.

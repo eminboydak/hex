@@ -117,4 +117,16 @@ The name 'ASSETS' is reserved in Pages projects.
 
 ## Design
 
-See `DESIGN.md` for the full system and visual specification (Poetic Ink × Catppuccin Macchiato): color tokens, typography pairings, the guestbook identity / geometric identicon system, and the future-proof schema. Do not duplicate its contents elsewhere — reference it.
+See `DESIGN.md` for the full system and visual specification (Poetic Ink × Catppuccin Macchiato): color tokens, typography pairings, the guestbook identity / geometric identicon system, the admin panel & auth model, the R2 media bucket layout, and the future-proof schema. Do not duplicate its contents elsewhere — reference it.
+
+## Documentation
+
+Decisions, proposals, and release history live under `docs/`:
+
+| Path | Purpose |
+| --- | --- |
+| `docs/adr/` | Architecture Decision Records — immutable history of decisions (Michael Nygard format). |
+| `docs/plans/` | RFCs / plans — proposals with a lifecycle (`Draft → Proposed → Accepted → Implemented`). |
+| `docs/changelog/CHANGELOG.md` | Release notes ([Keep a Changelog](https://keepachangelog.com/) + SemVer). |
+
+Two opencode skills scaffold and maintain these artifacts: `.opencode/skills/docs-generator/` (ADR/RFC/CHANGELOG templates) and `.opencode/skills/commit-message/` (Conventional Commits). All documentation is in English.
