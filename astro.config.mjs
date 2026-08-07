@@ -7,6 +7,9 @@ import tailwindcss from '@tailwindcss/vite';
 // https://astro.build/config
 export default defineConfig({
   output: 'server',
+  // Disable Astro Sessions so the Cloudflare adapter does not auto-provision an
+  // unconfigured `SESSION` KV namespace binding in the generated wrangler config.
+  session: false,
   adapter: cloudflare({
     imageService: 'compile',
     platformProxy: {
