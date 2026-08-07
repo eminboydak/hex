@@ -1,0 +1,15 @@
+name = "hex"
+compatibility_date = "2026-08-07"
+pages_build_output_dir = "dist"
+
+# Local dev: `pnpm run db:push` seeds a local SQLite under .wrangler/state/v3/d1.
+# Production: run `wrangler d1 create hex` and `wrangler r2 bucket create hex-media`,
+# then replace the placeholder database_id below with the id returned by `d1 create`.
+[[d1_databases]]
+binding = "DB"
+database_name = "hex"
+database_id = "8902b21c-6616-472d-bac8-5df9248961ca"
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "hex-assets"

@@ -1,0 +1,2 @@
+# Interactive Preact islands live here (.tsx). Use only for genuine client-side
+# interactivity; default to static .astro components in ../ui.

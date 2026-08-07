@@ -1,0 +1,37 @@
+---
+import type { PostSummary } from '@/lib/types';
+
+interface Props {
+  post: PostSummary;
+}
+const { post } = Astro.props;
+
+const date = post.published_at
+  ? new Date(post.published_at).toLocaleDateString('tr-TR', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    })
+  : null;
+---
+<article class="group border-b border-line py-7">
+  <a href={`/blog/${post.slug}`} class="block">
+    <h2
+      class="font-display text-2xl text-ink transition-colors group-hover:text-mauve"
+    >
+      {post.title}
+    </h2>
+    {
+      post.excerpt && (
+        <p class="mt-2 leading-relaxed text-faint">{post.excerpt}</p>
+      )
+    }
+    {
+      date && (
+        <time class="mt-3 block font-mono text-xs text-faint" datetime={post.published_at ?? undefined}>
+          {date}
+        </time>
+      )
+    }
+  </a>
+</article>

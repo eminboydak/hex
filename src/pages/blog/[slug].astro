@@ -1,0 +1,21 @@
+---
+import { env } from 'cloudflare:workers';
+import PostLayout from '@/layouts/PostLayout.astro';
+import { getPostBySlug } from '@/lib/db';
+import { renderMarkdown } from '@/lib/markdown';
+
+const { slug } = Astro.params;
+if (!slug) {
+  return new Response('Not found', { status: 404 });
+}
+
+const post = await getPostBySlug(env.DB, slug);
+if (!post) {
+  return new Response('Not found', { status: 404 });
+}
+
+const html = renderMarkdown(post.content_markdown);
+---
+<PostLayout post={post}>
+  <Fragment set:html={html} />
+</PostLayout>
