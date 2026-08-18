@@ -1,0 +1,52 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "projects": {
+    "workflows": {
+      "default": {
+        "priorities": {
+          ".opencode/.*": 5,
+          "AGENTS.md": 5
+        }
+      }
+    },
+    "rules": [
+      {
+        "id": "enforce-strict-typescript",
+        "pattern": "\\.tsx?$",
+        "exclude": ["\\.astro$"],
+        "always": true,
+        "actions": ["error: No `any` allowed. Use strict typing."]
+      },
+      {
+        "id": "enforce-tailwind-only",
+        "pattern": "style=.*",
+        "always": true,
+        "actions": ["error: Use Tailwind utility classes only (no style=)."]
+      }
+    ]
+  },
+  "models": {
+    "default": {
+      "model": "anthropic/claude-3-5-sonnet",
+      "temperature": 0.7
+    },
+    "code": {
+      "model": "anthropic/claude-3-5-sonnet"
+    },
+    "planning": {
+      "model": "anthropic/claude-3-5-sonnet"
+    }
+  },
+  "tools": {
+    "code": true,
+    "bash": true
+  },
+  "skills": {
+    "enable": true,
+    "autoLoad": [
+      ".opencode/skills/*",
+      ".opencode/agents/*",
+      ".opencode/rules/*"
+    ]
+  }
+}
