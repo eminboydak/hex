@@ -38,3 +38,23 @@ export interface GuestbookEntryView extends GuestbookEntry {
   formattedId: string
   identiconSvg: string
 }
+
+export interface CreatePostInput {
+  title: string
+  slug?: string
+  content_markdown: string
+  excerpt?: string
+  status: PostStatus
+  published_at?: string | null
+  metadata?: string
+}
+
+export interface UpdatePostInput {
+  title?: string
+  slug?: string
+  content_markdown?: string
+  excerpt?: string
+  status?: PostStatus
+  published_at?: string | null
+  metadata?: string
+}
