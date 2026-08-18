@@ -1,0 +1,44 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import MarkdownEditor from '@/components/islands/MarkdownEditor';
+import type { Post } from '@/lib/types';
+
+// Check if editing existing post
+const postId = Astro.url.searchParams.get('id');
+let initialPost: Post | null = null;
+
+if (postId) {
+  try {
+    const response = await fetch(`${import.meta.env.SITE_URL || 'http://localhost:4321'}/api/admin/posts`);
+    const data = await response.json() as { posts: Post[] };
+    const posts = data.posts || [];
+    initialPost = posts.find((p: Post) => p.id === parseInt(postId, 10)) || null;
+  } catch (error) {
+    console.error('Failed to fetch post:', error);
+  }
+}
+---
+
+<BaseLayout title={initialPost ? 'Edit Post' : 'New Post'}>
+  <div class="max-w-4xl">
+    <h1 class="font-display text-3xl text-ink mb-8">
+      {initialPost ? 'Edit Post' : 'New Post'}
+    </h1>
+
+    {initialPost ? (
+      <MarkdownEditor
+        client:visible
+        postId={initialPost.id}
+        initialTitle={initialPost.title || ''}
+        initialContent={initialPost.content_markdown || ''}
+        initialExcerpt={initialPost.excerpt || ''}
+        initialStatus={initialPost.status || 'draft'}
+        initialPublishedAt={initialPost.published_at || null}
+      />
+    ) : (
+      <MarkdownEditor
+        client:visible
+      />
+    )}
+  </div>
+</BaseLayout>
