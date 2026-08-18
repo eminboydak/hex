@@ -64,3 +64,52 @@ Before implementing any new page, module, component, or interactive feature, do 
 - `pnpm build` passes (Cloudflare build).
 - `astro check` passes (this is the typecheck, not `tsc`).
 - No client JS shipped unless an island was explicitly added (View Transitions are the only intentional client script).
+
+## Project-specific workflows
+
+### Adding a new blog post (Turkish)
+1. Create new file in `_raw_posts/*.md` with frontmatter: `title`, `publishDate`, `description`, `tags`
+2. Run `pnpm db:seed` to import into D1
+3. Post will be accessible at `/blog/<slug>` where slug is WordPress-style generated from title
+
+### Creating a new interactive component
+1. Determine if interactivity is required (most features should be static .astro)
+2. If yes, create in `src/components/islands/*.tsx` using Preact
+3. Add `client:visible` or `client:idle` directive when using in .astro files
+4. Verify no unnecessary client JS is shipped
+
+### Setting up admin authentication
+1. Configure Cloudflare Access policy for `/admin/*` routes
+2. Set `ADMIN_AUD` environment variable in wrangler.toml
+3. JWT verification happens automatically in Hono middleware at `/api/admin/*`
+4. Access UI at `/admin` and `/admin/editor`
+
+### Uploading images to R2
+1. Images resized client-side in MarkdownEditor island (≤1600px, WebP format)
+2. Upload via `POST /api/admin/upload?type=blog`
+3. Stored in R2 bucket at `blog/YYYY/MM/<uuid>.webp`
+4. Served via CDN at `https://cdn.eminboydak.com/blog/YYYY/MM/<uuid>.webp`
+
+### Guestbook entry workflow
+1. User submits via `GuestbookForm.tsx` island
+2. POST to `/api/guestbook` endpoint
+3. Stored in D1 `guestbook` table with generated geometric identicon
+4. Display uses `0x` prefix + 8 hex chars format
+
+### Database schema changes
+1. Edit `schema.sql` to add/modify tables
+2. Run `pnpm db:push` to apply changes to remote D1
+3. If data migration needed, create and run custom SQL via `wrangler d1 execute hex --remote --command="..."`
+4. Update type definitions in `src/lib/types.ts` if needed
+
+### Adding new API routes
+1. Add route handler in `src/pages/api/[...path].ts` Hono router
+2. Access D1 via `c.env.DB` and R2 via `c.env.BUCKET`
+3. Use `import { env } from 'cloudflare:workers'` for type safety
+4. Run `pnpm cf-typegen` if wrangler.toml bindings change
+
+### Working with Turkish content
+- All blog posts in `_raw_posts/*.md` are Turkish
+- Use `subsets: ['latin-ext']` for Google Fonts
+- Slug generation preserves Turkish characters (çğıöşü)
+- Date formatting should use Turkish locale when displaying

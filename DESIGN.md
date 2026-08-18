@@ -104,6 +104,15 @@ A personal digital workspace, workshop, and poetic journal. Combines poetic edit
 - `/admin/editor` — markdown editor with live preview, image upload (drop/paste), form (title/slug/excerpt/status). `?id=` loads an existing post (SSR), otherwise new post.
 - **Editor island:** `src/components/islands/MarkdownEditor.tsx` (Preact) — the only intentional client JS in the admin area. Features: live preview via `marked`, client-side image resize → webp upload, create/update submission.
 
+### Slug System (WordPress Style)
+- **Generation:** Auto-generated from title (Turkish aware, WordPress sanitization)
+- **Mutability:** Mutable (title change updates slug)
+- **Manual editing:** User can override (WordPress style "Edit Slug" button)
+- **Uniqueness:** Auto suffix on conflict (slug-2, slug-3)
+- **Redirects:** None (slug break acceptable for personal blog)
+- **SEO:** 60 character limit, keyword-first, Turkish characters preserved (çğıöşü)
+- **Fallback:** Random UUID if title is empty
+
 ## 5. MEDIA STORAGE (R2)
 
 ### Bucket Layout (Hybrid: content-type × date)
@@ -120,10 +129,10 @@ A personal digital workspace, workshop, and poetic journal. Combines poetic edit
 ```
 
 ### Naming & Upload Flow
-- **Filename:** `<ulid>.<ext>` — ULID generated server-side (`Date.now()` base32 + `crypto.getRandomValues`), lexicographically time-sortable. No client-supplied filenames stored verbatim.
+- **Filename:** `<uuid>.<ext>` — UUID v4 generated server-side (lexicographically time-sortable, but simpler than ULID). No client-supplied filenames stored verbatim.
 - **Resize:** performed client-side in the editor island via `<canvas>` (longest edge ≤ 1600px), then `canvas.toBlob('image/webp', 0.82)`. The Worker stores bytes as-is — no server-side image processing, no paid Cloudflare Images/Resizing, no WASM in the Worker.
-- **Endpoint:** `POST /api/admin/upload?type=blog` (multipart) → `env.BUCKET.put('blog/2026/08/<ulid>.webp', ...)` → returns the public CDN URL.
-- **Public URL:** `https://cdn.eminboydak.com/blog/2026/08/<ulid>.webp` (R2 bucket served via the `cdn.eminboydak.com` custom domain).
+- **Endpoint:** `POST /api/admin/upload?type=blog` (multipart) → `env.BUCKET.put('blog/2026/08/<uuid>.webp', ...)` → returns the public CDN URL.
+- **Public URL:** `https://cdn.eminboydak.com/blog/2026/08/<uuid>.webp` (R2 bucket served via the `cdn.eminboydak.com` custom domain).
 
 ### Performance Notes
 - Prefix partitioning: each `content-type/YYYY/MM/` acts as a separate prefix, scaling request rate across partitions.
